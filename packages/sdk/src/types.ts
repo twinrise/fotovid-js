@@ -66,7 +66,7 @@ export interface TrimInput extends SourceInput {
 
 export type ExtractAudioInput = SourceInput;
 
-export interface CropAudioInput extends SourceInput {
+export interface TrimAudioInput extends SourceInput {
 	/** Window start in seconds (inclusive). */
 	start?: number;
 	/** Window end in seconds (exclusive); must be greater than start. */

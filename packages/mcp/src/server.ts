@@ -161,9 +161,9 @@ export function createServer(fotovid: Fotovid): McpServer {
 	);
 
 	server.registerTool(
-		"fotovid_crop_audio",
+		"fotovid_trim_audio",
 		{
-			title: "Crop an audio file",
+			title: "Trim an audio file",
 			description:
 				"Slice an audio file to a start/end window (seconds) and return it as an MP3 (hosted, presigned URL).",
 			inputSchema: {
@@ -172,7 +172,7 @@ export function createServer(fotovid: Fotovid): McpServer {
 				end: end.optional(),
 			},
 		},
-		(args) => run(() => fotovid.audio.crop(args)),
+		(args) => run(() => fotovid.audio.trim(args)),
 	);
 
 	server.registerTool(

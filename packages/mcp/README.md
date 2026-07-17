@@ -30,7 +30,7 @@ read from the `FOTOVID_API_KEY` environment variable.
 | `fotovid_watermark_image` | Overlay text/logo on an image |
 | `fotovid_trim_video` | Cut a clip between two timestamps |
 | `fotovid_extract_audio` | Extract a video's audio as MP3 |
-| `fotovid_crop_audio` | Slice an audio file to a window |
+| `fotovid_trim_audio` | Slice an audio file to a window |
 | `fotovid_video_thumbnail` | Capture a frame as a thumbnail |
 | `fotovid_probe_video` | Return video metadata (no file) |
 

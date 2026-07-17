@@ -36,7 +36,7 @@ console.log(res.url); // presigned URL to the finished file — store your own c
 | `fotovid.image.watermark(input)` | `POST /v1/image/watermark` |
 | `fotovid.video.trim(input)` | `POST /v1/video/trim` |
 | `fotovid.video.extractAudio(input)` | `POST /v1/video/extract-audio` |
-| `fotovid.audio.crop(input)` | `POST /v1/audio/crop` |
+| `fotovid.audio.trim(input)` | `POST /v1/audio/trim` |
 | `fotovid.video.thumbnail(input)` | `POST /v1/video/extract-cover` |
 | `fotovid.video.probe(input)` | `POST /v1/video/probe` |
 

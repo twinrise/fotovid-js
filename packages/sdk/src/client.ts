@@ -1,6 +1,6 @@
 import { FotovidError } from "./error.js";
 import type {
-	CropAudioInput,
+	TrimAudioInput,
 	ExtractAudioInput,
 	FotovidOptions,
 	ImageWatermarkInput,
@@ -107,10 +107,10 @@ export class Fotovid {
 	};
 
 	readonly audio = {
-		crop: (
-			input: CropAudioInput,
+		trim: (
+			input: TrimAudioInput,
 			options?: RequestOptions,
 		): Promise<MediaResult> =>
-			this.#post<MediaResult>("/v1/audio/crop", input, options),
+			this.#post<MediaResult>("/v1/audio/trim", input, options),
 	};
 }
