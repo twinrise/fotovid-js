@@ -119,3 +119,13 @@ export interface FotovidOptions {
 	/** Custom fetch implementation (defaults to the global fetch). */
 	fetch?: typeof globalThis.fetch;
 }
+
+/** Per-request options. */
+export interface RequestOptions {
+	/**
+	 * Idempotency key (1–255 printable ASCII). Defaults to a fresh UUID per
+	 * call. Reuse the same key with the same body to safely retry a billed
+	 * request — the API replays the original result instead of charging again.
+	 */
+	idempotencyKey?: string;
+}

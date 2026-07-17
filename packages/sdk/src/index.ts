@@ -9,6 +9,7 @@ export type {
 	MediaResult,
 	ProbeInput,
 	ProbeResult,
+	RequestOptions,
 	ThumbnailInput,
 	TrimInput,
 	VideoWatermarkInput,

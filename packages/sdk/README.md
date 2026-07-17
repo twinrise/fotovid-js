@@ -54,6 +54,21 @@ new Fotovid({
 });
 ```
 
+## Idempotency
+
+Every operation is billed, so the API requires an `Idempotency-Key` header. The
+SDK sends a fresh key per call automatically — you don't have to do anything. To
+safely retry a request without being charged twice, pass the same key both times:
+
+```ts
+const idempotencyKey = crypto.randomUUID();
+const opts = { idempotencyKey };
+
+await fotovid.video.watermark(input, opts);
+// A retry with the same key replays the original result instead of re-charging.
+await fotovid.video.watermark(input, opts);
+```
+
 ## License
 
 MIT

@@ -7,6 +7,7 @@ import type {
 	MediaResult,
 	ProbeInput,
 	ProbeResult,
+	RequestOptions,
 	ThumbnailInput,
 	TrimInput,
 	VideoWatermarkInput,
@@ -42,13 +43,21 @@ export class Fotovid {
 		this.#fetch = options.fetch ?? globalThis.fetch;
 	}
 
-	async #post<T>(path: string, input: { source_url: string }): Promise<T> {
+	async #post<T>(
+		path: string,
+		input: { source_url: string },
+		options?: RequestOptions,
+	): Promise<T> {
 		const { source_url, ...params } = input;
 		const response = await this.#fetch(new URL(path, this.#baseUrl), {
 			method: "POST",
 			headers: {
 				"content-type": "application/json",
 				authorization: `Bearer ${this.#apiKey}`,
+				// Billed endpoints require an idempotency key; default to a fresh
+				// UUID per call, overridable to make a retry replay (not re-charge).
+				"idempotency-key":
+					options?.idempotencyKey ?? globalThis.crypto.randomUUID(),
 			},
 			body: JSON.stringify({ source_url, params }),
 		});
@@ -65,25 +74,43 @@ export class Fotovid {
 	}
 
 	readonly video = {
-		watermark: (input: VideoWatermarkInput): Promise<MediaResult> =>
-			this.#post<MediaResult>("/v1/video/watermark", input),
-		trim: (input: TrimInput): Promise<MediaResult> =>
-			this.#post<MediaResult>("/v1/video/trim", input),
-		extractAudio: (input: ExtractAudioInput): Promise<MediaResult> =>
-			this.#post<MediaResult>("/v1/video/extract-audio", input),
-		thumbnail: (input: ThumbnailInput): Promise<MediaResult> =>
-			this.#post<MediaResult>("/v1/video/extract-cover", input),
-		probe: (input: ProbeInput): Promise<ProbeResult> =>
-			this.#post<ProbeResult>("/v1/video/probe", input),
+		watermark: (
+			input: VideoWatermarkInput,
+			options?: RequestOptions,
+		): Promise<MediaResult> =>
+			this.#post<MediaResult>("/v1/video/watermark", input, options),
+		trim: (input: TrimInput, options?: RequestOptions): Promise<MediaResult> =>
+			this.#post<MediaResult>("/v1/video/trim", input, options),
+		extractAudio: (
+			input: ExtractAudioInput,
+			options?: RequestOptions,
+		): Promise<MediaResult> =>
+			this.#post<MediaResult>("/v1/video/extract-audio", input, options),
+		thumbnail: (
+			input: ThumbnailInput,
+			options?: RequestOptions,
+		): Promise<MediaResult> =>
+			this.#post<MediaResult>("/v1/video/extract-cover", input, options),
+		probe: (
+			input: ProbeInput,
+			options?: RequestOptions,
+		): Promise<ProbeResult> =>
+			this.#post<ProbeResult>("/v1/video/probe", input, options),
 	};
 
 	readonly image = {
-		watermark: (input: ImageWatermarkInput): Promise<MediaResult> =>
-			this.#post<MediaResult>("/v1/image/watermark", input),
+		watermark: (
+			input: ImageWatermarkInput,
+			options?: RequestOptions,
+		): Promise<MediaResult> =>
+			this.#post<MediaResult>("/v1/image/watermark", input, options),
 	};
 
 	readonly audio = {
-		crop: (input: CropAudioInput): Promise<MediaResult> =>
-			this.#post<MediaResult>("/v1/audio/crop", input),
+		crop: (
+			input: CropAudioInput,
+			options?: RequestOptions,
+		): Promise<MediaResult> =>
+			this.#post<MediaResult>("/v1/audio/crop", input, options),
 	};
 }
