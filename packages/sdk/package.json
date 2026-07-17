@@ -1,0 +1,50 @@
+{
+	"name": "@fotovid/sdk",
+	"version": "0.0.0",
+	"description": "Typed TypeScript/Node client for the Fotovid media API",
+	"license": "MIT",
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"sideEffects": false,
+	"engines": {
+		"node": ">=18"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"scripts": {
+		"build": "tsup",
+		"typecheck": "tsc --noEmit"
+	},
+	"keywords": [
+		"fotovid",
+		"ffmpeg",
+		"watermark",
+		"video",
+		"media",
+		"serverless",
+		"api",
+		"sdk"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/twinrise/fotovid-js.git",
+		"directory": "packages/sdk"
+	},
+	"homepage": "https://github.com/twinrise/fotovid-js/tree/main/packages/sdk",
+	"bugs": "https://github.com/twinrise/fotovid-js/issues"
+}
