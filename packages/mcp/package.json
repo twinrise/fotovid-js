@@ -1,6 +1,6 @@
 {
 	"name": "@fotovid/mcp",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"description": "MCP server exposing the Fotovid media API as first-class agent tools",
 	"license": "MIT",
 	"type": "module",
