@@ -49,10 +49,10 @@
 - **通用媒体响应**:
 
 ```json
-{ "id": "…", "type": "video.watermark", "url": "https://…(presigned)",
+{ "id": "…", "type": "video.watermark", "url": "https://…(hosted, time-limited)",
   "expires_at": "2026-01-01T00:00:00Z", "duration": 12.3 }
 ```
-`id/type/url/expires_at` 必有,`duration` 可选。**URL 是 presigned、有 TTL,提醒用户自存一份。**
+`id/type/url/expires_at` 必有,`duration` 可选。**URL 是托管、限时、不透明的(勿解析 URL,以 `expires_at` 为准),提醒用户自存一份。**
 
 ### 端点与参数(逐一,来自 spec)
 
@@ -155,7 +155,7 @@ await fotovid.audio.crop({ source_url, start: 10, end: 30 });
 type MediaResult = {
   id: string;
   type: string;
-  url: string;            // presigned,有 TTL —— 文档强调「自存一份」
+  url: string;            // 托管、限时、不透明(勿解析,以 expires_at 为准)—— 文档强调「自存一份」
   expires_at: string;     // RFC3339(与 API 一致)
   duration?: number;
 };
@@ -204,7 +204,7 @@ class FotovidError extends Error {
 | `fotovid_video_thumbnail` | `video.thumbnail` | source_url, at?, output_format?, quality? |
 | `fotovid_probe_video` | `video.probe` | source_url |
 
-- **tool description 要写好**:agent 靠描述选工具。每个描述点明「输入一个媒体 URL、输出一个成品文件 URL(有 24h TTL,请自存)」。
+- **tool description 要写好**:agent 靠描述选工具。每个描述点明「输入一个媒体 URL、输出一个成品文件 URL(托管、限时、不透明,以 expires_at 为准,请自存)」。
 - 输出:MCP tool result 返回结构化 JSON(含 `url`)+ 一行人读文本(结果链接 + TTL 提醒)。
 
 ### 5.3 用户端配置
@@ -268,7 +268,7 @@ class FotovidError extends Error {
 
 - **现在(已改)**:`ServerlessNative.tsx` 撤掉「Typed SDK」「MCP server」两张卡(含错误的「transcode」措辞)。因 3 列网格删 2 张会剩 1 张孤卡,用两张**真实的 serverless-native 能力**补位:
   - 「Runs from any runtime」——无二进制入包 / 无冷启动层,同一 HTTPS 调用在 Vercel/Cloudflare/Lambda/Deno 都行。
-  - 「Hosted results, no temp files」——每次返回成品的 presigned URL,不写函数只读盘。
+  - 「Hosted results, no temp files」——每次返回成品的托管、限时、不透明 URL(以 expires_at 为准),不写函数只读盘。
 - **S7(包上线后)**:再把 SDK / MCP 卡加回,放真实 `npm i @fotovid/sdk` + MCP 配置,措辞用「MCP server」(非 endpoint)。
 - **FeatureGrid 的「Convert / Transcode」保持不动**:它在 `COMING_SOON` 里带「Coming soon」徽章(虚线框、opacity-60),已是诚实的 roadmap 标注,非 vaporware。
 
@@ -283,7 +283,7 @@ class FotovidError extends Error {
 - **首页文案时机**:删 transcode / endpoint→server,建议随上线(S7)一起改,发布前保持诚实。
 - **建仓方式**:你手动建 `fotovid-js` 公开仓给我路径,还是授权我 `gh repo create`?(唯一挡开工的动作项)
 
-> **`download()` 下载的是什么?** —— 每个操作返回的 `url` 是**成品文件**(加好水印的视频 / 抽出的音频 / 生成的缩略图…)的 presigned 下载地址,由 Fotovid 托管、有 TTL(~24h)。SDK 默认只把这个 `url` 交给你;要真正拿到字节,你得再 `fetch(res.url)` 一次并存盘。`download()` 就是把这第二步包成一行(拉回 `ArrayBuffer` 或直接写文件)。纯便利糖,v1 先不做(用户一行 fetch 即可),v2 再加。
+> **`download()` 下载的是什么?** —— 每个操作返回的 `url` 是**成品文件**(加好水印的视频 / 抽出的音频 / 生成的缩略图…)的下载地址,由 Fotovid 托管、限时、不透明(以 `expires_at` 为准,勿解析 URL)。SDK 默认只把这个 `url` 交给你;要真正拿到字节,你得再 `fetch(res.url)` 一次并存盘。`download()` 就是把这第二步包成一行(拉回 `ArrayBuffer` 或直接写文件)。纯便利糖,v1 先不做(用户一行 fetch 即可),v2 再加。
 
 ---
 

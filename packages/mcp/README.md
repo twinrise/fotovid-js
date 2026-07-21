@@ -34,8 +34,9 @@ read from the `FOTOVID_API_KEY` environment variable.
 | `fotovid_video_thumbnail` | Capture a frame as a thumbnail |
 | `fotovid_probe_video` | Return video metadata (no file) |
 
-Each media tool returns a hosted, presigned URL to the finished file (expires in
-~24h — store your own copy). Built on [`@fotovid/sdk`](../sdk).
+Each media tool returns a URL to the finished file — hosted, time-limited,
+opaque; see `expires_at` and store your own copy. Built on
+[`@fotovid/sdk`](../sdk).
 
 ## License
 

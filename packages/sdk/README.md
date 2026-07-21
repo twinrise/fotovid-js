@@ -25,7 +25,7 @@ const res = await fotovid.video.watermark({
 	opacity: 0.8,
 });
 
-console.log(res.url); // presigned URL to the finished file — store your own copy
+console.log(res.url); // URL to the finished file — hosted, time-limited, opaque; see expires_at, store your own copy
 ```
 
 ## Operations

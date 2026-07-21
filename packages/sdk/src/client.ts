@@ -68,7 +68,9 @@ export class Fotovid {
 			} catch {
 				// non-JSON error body — leave detail undefined
 			}
-			throw new FotovidError(response.status, detail);
+			const ra = response.headers.get("retry-after");
+			const retryAfter = ra ? Number(ra) : undefined;
+			throw new FotovidError(response.status, detail, retryAfter);
 		}
 		return (await response.json()) as T;
 	}
