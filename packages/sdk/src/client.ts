@@ -1,4 +1,5 @@
-import { FotovidError } from "./error.js";
+import { requestJson } from "./http.js";
+import { Tasks } from "./tasks.js";
 import type {
 	ExtractAudioInput,
 	FotovidOptions,
@@ -14,9 +15,6 @@ import type {
 } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.fotovid.co";
-
-// Injected at build time from package.json by tsup (see tsup.config.ts).
-declare const __SDK_VERSION__: string;
 
 function resolveApiKey(explicit: string | undefined): string {
 	const key =
@@ -40,46 +38,40 @@ export class Fotovid {
 	readonly #baseUrl: string;
 	readonly #fetch: typeof globalThis.fetch;
 
+	/** Async task surface — submit larger jobs than sync accepts, then poll for the result. */
+	readonly tasks: Tasks;
+
 	constructor(options: FotovidOptions = {}) {
 		this.#apiKey = resolveApiKey(options.apiKey);
 		this.#baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
 		this.#fetch = options.fetch ?? globalThis.fetch;
+		this.tasks = new Tasks({
+			apiKey: this.#apiKey,
+			baseUrl: this.#baseUrl,
+			fetch: this.#fetch,
+		});
 	}
 
-	async #post<T>(
+	#post<T>(
 		path: string,
 		input: { source_url: string },
 		options?: RequestOptions,
 	): Promise<T> {
 		const { source_url, ...params } = input;
-		const response = await this.#fetch(new URL(path, this.#baseUrl), {
-			method: "POST",
-			headers: {
-				"content-type": "application/json",
-				authorization: `Bearer ${this.#apiKey}`,
-				// An explicit UA identifies the SDK to the edge and to server-side
-				// observability. (The Python SDK's default urllib UA was blocked by
-				// Cloudflare with a 403 — Node's fetch UA is not, but be explicit.)
-				"user-agent": `fotovid-sdk/${__SDK_VERSION__}`,
-				// Billed endpoints require an idempotency key; default to a fresh
-				// UUID per call, overridable to make a retry replay (not re-charge).
-				"idempotency-key":
-					options?.idempotencyKey ?? globalThis.crypto.randomUUID(),
+		return requestJson<T>(
+			{ apiKey: this.#apiKey, baseUrl: this.#baseUrl, fetch: this.#fetch },
+			path,
+			{
+				method: "POST",
+				body: { source_url, params },
+				headers: {
+					// Billed endpoints require an idempotency key; default to a fresh
+					// UUID per call, overridable to make a retry replay (not re-charge).
+					"idempotency-key":
+						options?.idempotencyKey ?? globalThis.crypto.randomUUID(),
+				},
 			},
-			body: JSON.stringify({ source_url, params }),
-		});
-		if (!response.ok) {
-			let detail: unknown;
-			try {
-				detail = await response.json();
-			} catch {
-				// non-JSON error body — leave detail undefined
-			}
-			const ra = response.headers.get("retry-after");
-			const retryAfter = ra ? Number(ra) : undefined;
-			throw new FotovidError(response.status, detail, retryAfter);
-		}
-		return (await response.json()) as T;
+		);
 	}
 
 	readonly video = {
