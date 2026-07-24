@@ -232,8 +232,10 @@ class FotovidError extends Error {
 
 ## 6. 发布方案
 
-- **npm**:注册账号 → 建免费 `@fotovid` org → 公开包首发 `npm publish --access public`(scoped 默认私有,必须加)。
-- **自动化**:`changesets` 管版本/changelog;`.github/workflows/release.yml` 在合并后据 changeset 自动 `npm publish`,开 **npm provenance**。CI 用 `NPM_TOKEN` secret。
+- **npm**:注册账号 → 建免费 `@fotovid` org → 公开包首发 `pnpm publish --access public`。
+  ⚠️ **必须用 `pnpm`,不能用 `npm publish`**:`@fotovid/mcp` 依赖 `"@fotovid/sdk": "workspace:^0.1.0"`,只有 `pnpm pack/publish` 会把它改写成 `^0.1.0`;`npm pack/publish` 会把 `workspace:` 字面量原样发出去(实测:子目录发、根目录 `-w` 发都一样),装出来的包依赖一个不存在的版本号。根 `package.json` 加 `workspaces` 字段也救不了。
+- **自动化**:`changesets` 管版本/changelog;`.github/workflows/release.yml` 开 **npm provenance**。
+  触发方式是 **`workflow_dispatch` 手动**,不是 push main —— 合并到 main 只让代码就位,发布是另一个动作(`gh workflow run release.yml --ref main`)。这样 main 更新到包上架之间有一段可以 `pnpm pack` 验货、补 commit 的窗口;npm 撤回窗口只有 72h,不留这一段就没有反悔余地。CI 用 `NPM_TOKEN` secret(必须同时导出为 `NODE_AUTH_TOKEN`,否则 setup-node 写的 .npmrc 会读到占位符 → `E404 PUT`)。changesets 检测到 pnpm workspace 后会 spawn `pnpm publish`,所以 CI 路径本身是安全的。
 - **版本**:semver;SDK 与 MCP 独立版本(MCP 的 peerdep/dep 指向 SDK)。
 
 ### 只有你能做的(我做不了)
@@ -292,4 +294,6 @@ class FotovidError extends Error {
 - 每包:`build`(tsup)+ `typecheck`(tsc)+ `biome check`,CI 门禁。
 - SDK:对真实 API 冒烟(一个测试 key + 一个公开样例媒体 URL),断言返回 `url` 可下载。
 - MCP:`@modelcontextprotocol/inspector` 连本地 server,逐 tool 手测;并在 Claude Desktop 里实配一次跑通。
-- 发布前:`npm publish --dry-run` + `pnpm changeset status` 核对将发内容与版本。
+- 发布前(`npm publish --dry-run` 不够,它既不发 PUT、也不显示依赖,查不出鉴权和 `workspace:` 问题):
+  - `pnpm pack` 后 `tar -xzOf *.tgz package/package.json | grep workspace:` —— **必须无输出**。
+  - `pnpm changeset status` 核对版本(注意:它只查 changeset 文件在不在,不碰 registry)。

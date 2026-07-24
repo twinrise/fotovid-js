@@ -1,0 +1,32 @@
+# Read-only probe: does secrets.NPM_TOKEN still authenticate, and can it reach
+# the @fotovid scope? Every command below is a GET — nothing can be published.
+#
+# Usage: push this branch, read the log, then delete the branch.
+#   git switch -c ci/npm-auth-probe && git push -u origin ci/npm-auth-probe
+#
+# Deliberately NOT workflow_dispatch: that would require the file on `main`,
+# and pushing to main fires release.yml, which publishes.
+name: npm auth probe
+
+on:
+  push:
+    branches: [ci/npm-auth-probe]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - name: whoami / org / scope access
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "--- npm whoami ---"
+          npm whoami
+          echo "--- npm org ls fotovid ---"
+          npm org ls fotovid
+          echo "--- npm access list packages @fotovid ---"
+          npm access list packages @fotovid || echo "(empty scope is expected before the first publish)"

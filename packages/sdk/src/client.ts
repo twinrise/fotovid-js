@@ -1,6 +1,5 @@
 import { FotovidError } from "./error.js";
 import type {
-	TrimAudioInput,
 	ExtractAudioInput,
 	FotovidOptions,
 	ImageWatermarkInput,
@@ -9,6 +8,7 @@ import type {
 	ProbeResult,
 	RequestOptions,
 	ThumbnailInput,
+	TrimAudioInput,
 	TrimInput,
 	VideoWatermarkInput,
 } from "./types.js";
