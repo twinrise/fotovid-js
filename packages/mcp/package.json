@@ -32,9 +32,15 @@
 		"mcp",
 		"model-context-protocol",
 		"ffmpeg",
+		"video",
+		"watermark",
 		"media",
+		"ai",
+		"ai-agent",
 		"agent",
-		"tools"
+		"tools",
+		"claude",
+		"async"
 	],
 	"repository": {
 		"type": "git",
