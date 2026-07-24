@@ -58,19 +58,19 @@ export interface VideoWatermarkInput extends SourceInput {
 export type ImageWatermarkInput = Omit<VideoWatermarkInput, "preset">;
 
 export interface TrimInput extends SourceInput {
-	/** Window start in seconds (inclusive). */
-	start?: number;
-	/** Window end in seconds (exclusive); must be greater than start. */
-	end?: number;
+	/** Window start in seconds (inclusive). Required by the API. */
+	start: number;
+	/** Window end in seconds (exclusive); must be greater than start. Required by the API. */
+	end: number;
 }
 
 export type ExtractAudioInput = SourceInput;
 
 export interface TrimAudioInput extends SourceInput {
-	/** Window start in seconds (inclusive). */
-	start?: number;
-	/** Window end in seconds (exclusive); must be greater than start. */
-	end?: number;
+	/** Window start in seconds (inclusive). Required by the API. */
+	start: number;
+	/** Window end in seconds (exclusive); must be greater than start. Required by the API. */
+	end: number;
 }
 
 export interface ThumbnailInput extends SourceInput {

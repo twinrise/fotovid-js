@@ -144,8 +144,8 @@ export function createServer(fotovid: Fotovid): McpServer {
 				"Cut a frame-accurate clip between two timestamps (seconds). Returns a URL to the trimmed video — hosted, time-limited, opaque; see expires_at.",
 			inputSchema: {
 				source_url,
-				start: start.optional(),
-				end: end.optional(),
+				start,
+				end,
 			},
 		},
 		(args) => run(() => fotovid.video.trim(args)),
@@ -170,8 +170,8 @@ export function createServer(fotovid: Fotovid): McpServer {
 				"Slice an audio file to a start/end window (seconds) and return it as an MP3 — a hosted, time-limited, opaque URL; see expires_at.",
 			inputSchema: {
 				source_url,
-				start: start.optional(),
-				end: end.optional(),
+				start,
+				end,
 			},
 		},
 		(args) => run(() => fotovid.audio.trim(args)),
