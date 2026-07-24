@@ -15,6 +15,9 @@ import type {
 
 const DEFAULT_BASE_URL = "https://api.fotovid.co";
 
+// Injected at build time from package.json by tsup (see tsup.config.ts).
+declare const __SDK_VERSION__: string;
+
 function resolveApiKey(explicit: string | undefined): string {
 	const key =
 		explicit ??
@@ -54,6 +57,10 @@ export class Fotovid {
 			headers: {
 				"content-type": "application/json",
 				authorization: `Bearer ${this.#apiKey}`,
+				// An explicit UA identifies the SDK to the edge and to server-side
+				// observability. (The Python SDK's default urllib UA was blocked by
+				// Cloudflare with a 403 — Node's fetch UA is not, but be explicit.)
+				"user-agent": `fotovid-sdk/${__SDK_VERSION__}`,
 				// Billed endpoints require an idempotency key; default to a fresh
 				// UUID per call, overridable to make a retry replay (not re-charge).
 				"idempotency-key":
