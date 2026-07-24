@@ -1,6 +1,6 @@
 {
 	"name": "@fotovid/sdk",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Typed TypeScript/Node client for the Fotovid media API",
 	"license": "MIT",
 	"type": "module",
