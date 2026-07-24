@@ -2,8 +2,6 @@
 
 An [MCP](https://modelcontextprotocol.io) server that exposes the [Fotovid](https://fotovid.co) media API as first-class tools, so your agents and AI tools can watermark, trim, extract audio, and generate thumbnails with a single tool call.
 
-> **Status: pre-release.** Not yet published to npm.
-
 ## Usage
 
 Run locally over stdio and point your MCP client at it. Your Fotovid API key is

@@ -2,8 +2,6 @@
 
 Thin, typed TypeScript/Node client for the [Fotovid](https://fotovid.co) media API. POST a URL, await the finished file — no ffmpeg binary in your bundle.
 
-> **Status: pre-release.** Not yet published to npm.
-
 ## Install
 
 ```bash
