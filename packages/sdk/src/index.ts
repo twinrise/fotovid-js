@@ -1,7 +1,6 @@
 export { Fotovid, Fotovid as default } from "./client.js";
 export { FotovidError } from "./error.js";
 export type {
-	CropAudioInput,
 	ExtractAudioInput,
 	FotovidOptions,
 	ImageFormat,
@@ -11,6 +10,7 @@ export type {
 	ProbeResult,
 	RequestOptions,
 	ThumbnailInput,
+	TrimAudioInput,
 	TrimInput,
 	VideoWatermarkInput,
 	WatermarkPosition,

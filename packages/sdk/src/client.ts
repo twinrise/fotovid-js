@@ -1,6 +1,5 @@
 import { FotovidError } from "./error.js";
 import type {
-	CropAudioInput,
 	ExtractAudioInput,
 	FotovidOptions,
 	ImageWatermarkInput,
@@ -9,6 +8,7 @@ import type {
 	ProbeResult,
 	RequestOptions,
 	ThumbnailInput,
+	TrimAudioInput,
 	TrimInput,
 	VideoWatermarkInput,
 } from "./types.js";
@@ -68,7 +68,9 @@ export class Fotovid {
 			} catch {
 				// non-JSON error body — leave detail undefined
 			}
-			throw new FotovidError(response.status, detail);
+			const ra = response.headers.get("retry-after");
+			const retryAfter = ra ? Number(ra) : undefined;
+			throw new FotovidError(response.status, detail, retryAfter);
 		}
 		return (await response.json()) as T;
 	}
@@ -107,10 +109,10 @@ export class Fotovid {
 	};
 
 	readonly audio = {
-		crop: (
-			input: CropAudioInput,
+		trim: (
+			input: TrimAudioInput,
 			options?: RequestOptions,
 		): Promise<MediaResult> =>
-			this.#post<MediaResult>("/v1/audio/crop", input, options),
+			this.#post<MediaResult>("/v1/audio/trim", input, options),
 	};
 }

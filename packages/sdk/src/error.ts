@@ -8,8 +8,10 @@ export class FotovidError extends Error {
 	readonly status: number;
 	/** Parsed error body, when the response carried one. */
 	readonly detail: unknown;
+	/** Seconds to wait before retrying, from the `Retry-After` header (e.g. 429/503). */
+	readonly retryAfter?: number;
 
-	constructor(status: number, detail: unknown) {
+	constructor(status: number, detail: unknown, retryAfter?: number) {
 		let message: string | undefined;
 		if (isRecord(detail)) {
 			if (typeof detail.detail === "string") {
@@ -22,5 +24,6 @@ export class FotovidError extends Error {
 		this.name = "FotovidError";
 		this.status = status;
 		this.detail = detail;
+		this.retryAfter = retryAfter;
 	}
 }

@@ -1,0 +1,40 @@
+# Read-only probe: does secrets.NPM_TOKEN still authenticate, and can it reach
+# the @fotovid scope? Every command below is a GET — nothing can be published.
+#
+# Usage: push this branch, read the log, then delete the branch.
+#   git switch -c ci/npm-auth-probe && git push -u origin ci/npm-auth-probe
+#
+# Deliberately NOT workflow_dispatch: that would require the file on `main`,
+# and pushing to main fires release.yml, which publishes.
+name: npm auth probe
+
+on:
+  push:
+    branches: [ci/npm-auth-probe]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - name: whoami / org / scope access
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Every command is `|| true`: the job runs under `bash -e`, and a granular
+        # access token legitimately 403s on org-admin reads while still being able
+        # to publish. One 403 must not hide the checks that follow it.
+        run: |
+          echo "--- npm whoami ---"
+          npm whoami || true
+          echo "--- npm org ls fotovid (403 is expected for a granular token) ---"
+          npm org ls fotovid || true
+          echo "--- npm access list packages @fotovid ---"
+          npm access list packages @fotovid || true
+          echo "--- npm access get status @fotovid/sdk ---"
+          npm access get status @fotovid/sdk || true
+          echo "--- is the name still free? (404 = free) ---"
+          npm view @fotovid/sdk version || true
+          npm view @fotovid/mcp version || true

@@ -49,6 +49,7 @@ const watermarkShape = {
 		.describe("Watermark variant (default text)"),
 	text: z
 		.string()
+		.max(1000)
 		.optional()
 		.describe("Overlay text (required for text/combo)"),
 	font_size: z
@@ -60,8 +61,9 @@ const watermarkShape = {
 		.describe("Text size in px (text/combo)"),
 	font_color: z
 		.string()
+		.regex(/^(#?[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?|[A-Za-z]+)$/)
 		.optional()
-		.describe("Text color name or #RRGGBB (text/combo)"),
+		.describe("Text color: a name (letters only) or #RRGGBB[AA] (text/combo)"),
 	watermark_image_url: z
 		.string()
 		.url()
@@ -69,16 +71,16 @@ const watermarkShape = {
 		.describe("Logo image URL (required for image/combo)"),
 	scale: z
 		.number()
-		.min(0)
+		.gt(0)
 		.max(1)
 		.optional()
-		.describe("Logo width as a fraction of source width (image/combo)"),
+		.describe("Logo width as a fraction of source width (>0–1; image/combo)"),
 	opacity: z
 		.number()
-		.min(0)
+		.gt(0)
 		.max(1)
 		.optional()
-		.describe("Watermark opacity 0–1"),
+		.describe("Watermark opacity (>0–1; omit for fully opaque)"),
 	position: position.optional(),
 	padding: z
 		.number()
@@ -100,7 +102,7 @@ export function createServer(fotovid: Fotovid): McpServer {
 		{
 			title: "Watermark a video",
 			description:
-				"Overlay text or a logo on a video (position, opacity, scale, padding). Returns a hosted, presigned URL to the finished video — it expires in ~24h, so store your own copy.",
+				"Overlay text or a logo on a video (position, opacity, scale, padding). Returns a URL to the finished video — hosted, time-limited, opaque; see expires_at, and store your own copy.",
 			inputSchema: {
 				...watermarkShape,
 				preset: z
@@ -128,7 +130,7 @@ export function createServer(fotovid: Fotovid): McpServer {
 		{
 			title: "Watermark an image",
 			description:
-				"Overlay text or a logo on an image. Returns a hosted, presigned URL to the finished image — it expires in ~24h, so store your own copy.",
+				"Overlay text or a logo on an image. Returns a URL to the finished image — hosted, time-limited, opaque; see expires_at, and store your own copy.",
 			inputSchema: watermarkShape,
 		},
 		(args) => run(() => fotovid.image.watermark(args)),
@@ -139,11 +141,11 @@ export function createServer(fotovid: Fotovid): McpServer {
 		{
 			title: "Trim a video",
 			description:
-				"Cut a frame-accurate clip between two timestamps (seconds). Returns a hosted, presigned URL to the trimmed video.",
+				"Cut a frame-accurate clip between two timestamps (seconds). Returns a URL to the trimmed video — hosted, time-limited, opaque; see expires_at.",
 			inputSchema: {
 				source_url,
-				start: start.optional(),
-				end: end.optional(),
+				start,
+				end,
 			},
 		},
 		(args) => run(() => fotovid.video.trim(args)),
@@ -154,25 +156,25 @@ export function createServer(fotovid: Fotovid): McpServer {
 		{
 			title: "Extract audio from a video",
 			description:
-				"Pull the audio track out of a video and return it as an MP3 (hosted, presigned URL).",
+				"Pull the audio track out of a video and return it as an MP3 — a hosted, time-limited, opaque URL; see expires_at.",
 			inputSchema: { source_url },
 		},
 		(args) => run(() => fotovid.video.extractAudio(args)),
 	);
 
 	server.registerTool(
-		"fotovid_crop_audio",
+		"fotovid_trim_audio",
 		{
-			title: "Crop an audio file",
+			title: "Trim an audio file",
 			description:
-				"Slice an audio file to a start/end window (seconds) and return it as an MP3 (hosted, presigned URL).",
+				"Slice an audio file to a start/end window (seconds) and return it as an MP3 — a hosted, time-limited, opaque URL; see expires_at.",
 			inputSchema: {
 				source_url,
-				start: start.optional(),
-				end: end.optional(),
+				start,
+				end,
 			},
 		},
-		(args) => run(() => fotovid.audio.crop(args)),
+		(args) => run(() => fotovid.audio.trim(args)),
 	);
 
 	server.registerTool(
@@ -180,7 +182,7 @@ export function createServer(fotovid: Fotovid): McpServer {
 		{
 			title: "Grab a video thumbnail",
 			description:
-				"Capture a frame at a given timestamp as an image thumbnail. Returns a hosted, presigned URL.",
+				"Capture a frame at a given timestamp as an image thumbnail. Returns a URL — hosted, time-limited, opaque; see expires_at.",
 			inputSchema: {
 				source_url,
 				at: z

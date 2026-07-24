@@ -7,8 +7,6 @@ Official JavaScript / TypeScript packages for the [Fotovid](https://fotovid.co) 
 | [`@fotovid/sdk`](./packages/sdk) | Thin, typed client for Node & TypeScript |
 | [`@fotovid/mcp`](./packages/mcp) | MCP server exposing Fotovid as first-class agent tools |
 
-> **Status: pre-release.** Not yet published to npm.
-
 ## Development
 
 ```bash

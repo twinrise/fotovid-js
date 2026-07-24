@@ -33,17 +33,17 @@ interface SourceInput {
 
 export interface VideoWatermarkInput extends SourceInput {
 	watermark_type?: WatermarkType;
-	/** Overlay text (required for text/combo). */
+	/** Overlay text, ≤1000 chars (required for text/combo). */
 	text?: string;
 	/** Text size in px, 8–200 (text/combo). */
 	font_size?: number;
-	/** Text color name or #RRGGBB (text/combo). */
+	/** Text color: a name (letters only) or #RRGGBB[AA] (text/combo). */
 	font_color?: string;
 	/** Logo image URL (required for image/combo). */
 	watermark_image_url?: string;
-	/** Logo width as a fraction of source width, 0–1 (image/combo). */
+	/** Logo width as a fraction of source width, >0–1 (image/combo). */
 	scale?: number;
-	/** Watermark opacity, 0–1. */
+	/** Watermark opacity, >0–1. */
 	opacity?: number;
 	position?: WatermarkPosition;
 	/** Edge padding in px, 0–500. */
@@ -58,19 +58,19 @@ export interface VideoWatermarkInput extends SourceInput {
 export type ImageWatermarkInput = Omit<VideoWatermarkInput, "preset">;
 
 export interface TrimInput extends SourceInput {
-	/** Window start in seconds (inclusive). */
-	start?: number;
-	/** Window end in seconds (exclusive); must be greater than start. */
-	end?: number;
+	/** Window start in seconds (inclusive). Required by the API. */
+	start: number;
+	/** Window end in seconds (exclusive); must be greater than start. Required by the API. */
+	end: number;
 }
 
 export type ExtractAudioInput = SourceInput;
 
-export interface CropAudioInput extends SourceInput {
-	/** Window start in seconds (inclusive). */
-	start?: number;
-	/** Window end in seconds (exclusive); must be greater than start. */
-	end?: number;
+export interface TrimAudioInput extends SourceInput {
+	/** Window start in seconds (inclusive). Required by the API. */
+	start: number;
+	/** Window end in seconds (exclusive); must be greater than start. Required by the API. */
+	end: number;
 }
 
 export interface ThumbnailInput extends SourceInput {
@@ -89,9 +89,9 @@ export interface MediaResult {
 	id: string;
 	/** Task type that produced this result. */
 	type: string;
-	/** Presigned download URL — expires; store your own copy. */
+	/** Download URL — hosted, time-limited, opaque; don't parse it, see `expires_at`. Store your own copy. */
 	url: string;
-	/** RFC 3339 time the presigned URL expires. */
+	/** RFC 3339 time the download URL expires. */
 	expires_at: string;
 	/** Result media duration in seconds, when known. */
 	duration?: number;

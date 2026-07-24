@@ -1,8 +1,12 @@
 name: Release
 
+# Manual trigger only: landing code on main must not publish. Run it with
+#   gh workflow run release.yml --ref main
+# or the "Run workflow" button on the Actions tab. This keeps a window where
+# main is up to date but nothing is on the registry yet — npm can only be
+# unpublished within 72h, so the merge and the publish stay separate acts.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -27,5 +31,9 @@ jobs:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # setup-node's registry-url writes an .npmrc that reads NODE_AUTH_TOKEN;
+          # NPM_TOKEN alone is only read by changesets/action's own .npmrc, which
+          # NPM_CONFIG_USERCONFIG then shadows.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"

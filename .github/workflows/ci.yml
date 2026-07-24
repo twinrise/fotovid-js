@@ -17,5 +17,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
-      - run: pnpm typecheck
+      # build first: packages/mcp typechecks against @fotovid/sdk's emitted d.ts
       - run: pnpm build
+      - run: pnpm typecheck

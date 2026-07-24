@@ -2,8 +2,6 @@
 
 Thin, typed TypeScript/Node client for the [Fotovid](https://fotovid.co) media API. POST a URL, await the finished file — no ffmpeg binary in your bundle.
 
-> **Status: pre-release.** Not yet published to npm.
-
 ## Install
 
 ```bash
@@ -25,7 +23,7 @@ const res = await fotovid.video.watermark({
 	opacity: 0.8,
 });
 
-console.log(res.url); // presigned URL to the finished file — store your own copy
+console.log(res.url); // URL to the finished file — hosted, time-limited, opaque; see expires_at, store your own copy
 ```
 
 ## Operations
@@ -36,7 +34,7 @@ console.log(res.url); // presigned URL to the finished file — store your own c
 | `fotovid.image.watermark(input)` | `POST /v1/image/watermark` |
 | `fotovid.video.trim(input)` | `POST /v1/video/trim` |
 | `fotovid.video.extractAudio(input)` | `POST /v1/video/extract-audio` |
-| `fotovid.audio.crop(input)` | `POST /v1/audio/crop` |
+| `fotovid.audio.trim(input)` | `POST /v1/audio/trim` |
 | `fotovid.video.thumbnail(input)` | `POST /v1/video/extract-cover` |
 | `fotovid.video.probe(input)` | `POST /v1/video/probe` |
 
