@@ -4,6 +4,23 @@
 
 Thin, typed Node.js / TypeScript SDK for the [Fotovid](https://fotovid.co) media API — a serverless ffmpeg API for watermarking video and images, trimming video and audio, extracting audio from video, generating video thumbnails, and probing video metadata. POST a source URL, await the finished file over one HTTPS call. No ffmpeg binary, no native dependencies, nothing to install beyond this package.
 
+**Full docs, guides, and API reference:** [fotovid.co/docs](https://fotovid.co/docs)
+
+## Why Fotovid
+
+- **No ffmpeg to install or maintain.** No binary in your container/Lambda, no
+  native build step, no version drift across machines — this package has zero
+  runtime dependencies.
+- **One call, typed end to end.** Parameters and results match the API 1:1;
+  autocomplete works, nothing to guess.
+- **Sync for quick jobs, async for large ones.** Small/short media returns in
+  the same call; video over ~720p or 15s goes through the async task API
+  instead of failing outright.
+- **Idempotent by default.** Every billed call gets a fresh idempotency key
+  automatically — retry safely without a double charge.
+- **Hosted output.** Every operation returns a URL to the finished file; no
+  storage bucket to provision or clean up yourself.
+
 ## Install
 
 ```bash
@@ -43,6 +60,66 @@ console.log(res.url); // URL to the finished file — hosted, time-limited, opaq
 Parameter names match the API 1:1 (`source_url`, `watermark_image_url`, …). Every
 media operation returns `{ id, type, url, expires_at, duration? }`; `probe`
 returns video metadata.
+
+## Examples
+
+### Video
+
+```ts
+// Text watermark, bottom-right corner.
+await fotovid.video.watermark({
+	source_url: "https://cdn.example.com/clip.mp4",
+	watermark_type: "text",
+	text: "© Acme Inc.",
+	position: "bottom-right",
+});
+
+// Cut a 10s clip.
+await fotovid.video.trim({
+	source_url: "https://cdn.example.com/clip.mp4",
+	start: 5,
+	end: 15,
+});
+
+// Pull out the audio track as an MP3.
+await fotovid.video.extractAudio({
+	source_url: "https://cdn.example.com/clip.mp4",
+});
+
+// Grab a frame at 2.5s as a thumbnail.
+await fotovid.video.thumbnail({
+	source_url: "https://cdn.example.com/clip.mp4",
+	at: 2.5,
+});
+
+// Metadata only — no file produced.
+const meta = await fotovid.video.probe({
+	source_url: "https://cdn.example.com/clip.mp4",
+});
+console.log(meta.width, meta.height, meta.durationSec, meta.fps, meta.codec);
+```
+
+### Image
+
+```ts
+// Logo watermark, scaled to 20% of the source width.
+await fotovid.image.watermark({
+	source_url: "https://cdn.example.com/photo.jpg",
+	watermark_type: "image",
+	watermark_image_url: "https://cdn.example.com/logo.png",
+	scale: 0.2,
+});
+```
+
+### Audio
+
+```ts
+await fotovid.audio.trim({
+	source_url: "https://cdn.example.com/track.mp3",
+	start: 0,
+	end: 30,
+});
+```
 
 ## Async (large or long video)
 
@@ -117,6 +194,13 @@ in the request body, not a header, but the SDK handles that difference for you).
 A non-2xx response throws `FotovidError` (`status`, `detail`, `retryAfter`).
 For `fotovid.tasks.*`, that's the only thing that throws — a task that finishes
 as `"failed"` is a normal return value, not an exception; check `task.error`.
+
+## Documentation
+
+- [Getting started](https://fotovid.co/docs/getting-started/quickstart)
+- [API reference](https://fotovid.co/docs/reference/http) — every endpoint, with request/response schemas
+- [Sync vs async guide](https://fotovid.co/docs/guides/sync-vs-async)
+- [Pricing](https://fotovid.co/pricing)
 
 ## License
 

@@ -4,6 +4,19 @@
 
 An [MCP](https://modelcontextprotocol.io) server (Model Context Protocol) that exposes the [Fotovid](https://fotovid.co) serverless ffmpeg API as first-class AI agent tools — watermark video and images, trim video and audio, extract audio from video, generate video thumbnails, and probe video metadata, all with a single tool call and no ffmpeg binary anywhere.
 
+**Full docs, guides, and API reference:** [fotovid.co/docs](https://fotovid.co/docs)
+
+## Why this instead of calling the API yourself
+
+- **No tool-calling code to write.** Point any MCP client (Claude Desktop,
+  Cursor, …) at this server and the model gets 14 typed tools — 7 sync, 7
+  async — with schemas and descriptions already written.
+- **No ffmpeg to install.** Nothing native in the agent's sandbox; every tool
+  is one HTTPS call under the hood.
+- **Large input handled correctly.** The `_async` tools and `fotovid_get_task`
+  give the agent an explicit way to submit and poll for video too large or
+  long for the sync tools, instead of failing.
+
 ## Usage
 
 Run locally over stdio and point your MCP client at it. Your Fotovid API key is
@@ -55,6 +68,13 @@ immediately with a `task_id`, then poll `fotovid_get_task` until it's done:
 | `fotovid_get_task` | Check a task's status — `outputs` once succeeded, `error` once failed |
 
 There's no async form of `fotovid_probe_video` — probing is sync-only.
+
+## Documentation
+
+- [Getting started](https://fotovid.co/docs/getting-started/quickstart)
+- [API reference](https://fotovid.co/docs/reference/http) — every endpoint, with request/response schemas
+- [Sync vs async guide](https://fotovid.co/docs/guides/sync-vs-async)
+- [Pricing](https://fotovid.co/pricing)
 
 ## License
 

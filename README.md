@@ -6,6 +6,22 @@
 
 Official JavaScript / TypeScript packages for the [Fotovid](https://fotovid.co) media API — a serverless ffmpeg API for video and image processing. Watermark video and images, trim video and audio, extract audio from video, generate video thumbnails, and probe video metadata, all over one HTTPS call, with no ffmpeg binary and no native dependencies to install. Large or long video that doesn't fit the sync time budget goes through an async task API instead. Also ships an MCP (Model Context Protocol) server so AI agents get the same operations as first-class tools.
 
+**Full docs, guides, and API reference:** [fotovid.co/docs](https://fotovid.co/docs)
+
+## Why Fotovid
+
+- **No ffmpeg to install or maintain.** No binary in your container/Lambda, no
+  native build step — `@fotovid/sdk` has zero runtime dependencies.
+- **Sync for quick jobs, async for large ones.** Small/short media returns in
+  the same call; video over ~720p or 15s goes through the async task API
+  instead of failing outright.
+- **The same operations, as agent tools.** `@fotovid/mcp` exposes every
+  operation to Claude, Cursor, and other MCP clients — no custom tool code to
+  write.
+- **Idempotent by default, hosted output.** Every billed call gets a fresh
+  idempotency key automatically; every operation returns a URL to the
+  finished file — no storage bucket to provision yourself.
+
 ## Quickstart
 
 ```bash
