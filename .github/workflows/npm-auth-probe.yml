@@ -23,10 +23,18 @@ jobs:
       - name: whoami / org / scope access
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Every command is `|| true`: the job runs under `bash -e`, and a granular
+        # access token legitimately 403s on org-admin reads while still being able
+        # to publish. One 403 must not hide the checks that follow it.
         run: |
           echo "--- npm whoami ---"
-          npm whoami
-          echo "--- npm org ls fotovid ---"
-          npm org ls fotovid
+          npm whoami || true
+          echo "--- npm org ls fotovid (403 is expected for a granular token) ---"
+          npm org ls fotovid || true
           echo "--- npm access list packages @fotovid ---"
-          npm access list packages @fotovid || echo "(empty scope is expected before the first publish)"
+          npm access list packages @fotovid || true
+          echo "--- npm access get status @fotovid/sdk ---"
+          npm access get status @fotovid/sdk || true
+          echo "--- is the name still free? (404 = free) ---"
+          npm view @fotovid/sdk version || true
+          npm view @fotovid/mcp version || true
