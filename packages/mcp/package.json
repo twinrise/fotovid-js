@@ -1,6 +1,6 @@
 {
 	"name": "@fotovid/mcp",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "MCP server exposing the Fotovid media API as first-class agent tools",
 	"license": "MIT",
 	"type": "module",
@@ -23,7 +23,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@fotovid/sdk": "workspace:^0.2.0",
+		"@fotovid/sdk": "workspace:^0.3.0",
 		"@modelcontextprotocol/sdk": "^1.12.0",
 		"zod": "^3.23.8"
 	},
