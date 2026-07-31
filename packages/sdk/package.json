@@ -1,6 +1,6 @@
 {
 	"name": "@fotovid/sdk",
-	"version": "0.3.0",
+	"version": "1.0.0",
 	"description": "Typed Node.js / TypeScript SDK for the Fotovid serverless ffmpeg API — video watermarking, trim, thumbnails, audio extraction, probe",
 	"license": "MIT",
 	"type": "module",
