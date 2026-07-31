@@ -27,7 +27,7 @@ importers:
   packages/mcp:
     dependencies:
       '@fotovid/sdk':
-        specifier: workspace:^0.2.0
+        specifier: workspace:^0.3.0
         version: link:../sdk
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.0
