@@ -63,6 +63,16 @@ export interface Task {
 	id: string;
 	status: TaskStatus;
 	task_type?: string;
+	/** The source URL exactly as submitted. Also delivered to your webhook and retained in the delivery record. */
+	source_url?: string;
+	/** The processing params exactly as submitted. Omitted for types that take none. */
+	params?: Record<string, unknown>;
+	/**
+	 * The labels you passed as `metadata`, returned verbatim. Omitted when none
+	 * were supplied; on an idempotent replay this is the *stored* task's
+	 * metadata, not what the replay sent.
+	 */
+	metadata?: Record<string, string>;
 	/** Produced artifacts, once `status` is `"succeeded"`. Order is not guaranteed — read by `kind`. */
 	outputs?: TaskOutput[];
 	/** Present when `status` is `"failed"`. A failed task is not an exception — check this field. */
@@ -95,6 +105,13 @@ export interface TaskRequestOptions {
 	webhook?: string;
 	/** Restrict which terminal states trigger the webhook. Default: all. */
 	webhookEventsFilter?: WebhookEvent[];
+	/**
+	 * Your own key/value labels, echoed back on the `Task` and in the webhook
+	 * payload. Never interpreted by the platform — no routing, auth, billing or
+	 * idempotency. At most 50 keys; keys ≤40 chars (no square brackets); values
+	 * are strings, ≤500 chars. Don't put secrets here.
+	 */
+	metadata?: Record<string, string>;
 	signal?: AbortSignal;
 }
 
@@ -109,6 +126,7 @@ function taskBody(
 		idempotency_key: options?.idempotencyKey ?? globalThis.crypto.randomUUID(),
 		webhook: options?.webhook,
 		webhook_events_filter: options?.webhookEventsFilter,
+		metadata: options?.metadata,
 	};
 }
 
