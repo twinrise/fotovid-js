@@ -63,10 +63,12 @@ export interface Task {
 	id: string;
 	status: TaskStatus;
 	task_type?: string;
-	/** The source URL exactly as submitted. Also delivered to your webhook and retained in the delivery record. */
-	source_url?: string;
-	/** The processing params exactly as submitted. Omitted for types that take none. */
-	params?: Record<string, unknown>;
+	/**
+	 * The input exactly as submitted: `source_url` plus this task type's
+	 * processing params, flattened into one object. Also delivered to your
+	 * webhook and retained in the delivery record.
+	 */
+	input?: Record<string, unknown>;
 	/**
 	 * The labels you passed as `metadata`, returned verbatim. Omitted when none
 	 * were supplied; on an idempotent replay this is the *stored* task's
@@ -89,10 +91,27 @@ export interface Task {
 	urls: { get: string };
 }
 
-export interface CreateTaskInput {
-	type: TaskType;
+/** The minimum every task input carries: the media to process. */
+export interface TaskInput {
 	source_url: string;
-	params?: Record<string, unknown>;
+}
+
+/**
+ * `I` is the task type's own input shape (e.g. `VideoWatermarkInput`), so the
+ * typed helpers keep their precise parameter types instead of widening to
+ * `Record<string, unknown>`.
+ */
+export interface CreateTaskInput<I extends TaskInput = TaskInput> {
+	type: TaskType;
+	/**
+	 * The source media URL plus this task type's processing params, in one flat
+	 * object — the same shape the sync helpers take.
+	 *
+	 * BREAKING (1.0.0): this replaces the old `{ source_url, params }` pair. The
+	 * flat helpers below (`tasks.video.*`, `tasks.image.*`, `tasks.audio.*`)
+	 * already took this shape and are unchanged.
+	 */
+	input: I;
 }
 
 export interface TaskRequestOptions {
@@ -116,13 +135,12 @@ export interface TaskRequestOptions {
 }
 
 function taskBody(
-	input: CreateTaskInput,
+	input: CreateTaskInput<TaskInput>,
 	options: TaskRequestOptions | undefined,
 ) {
 	return {
 		type: input.type,
-		source_url: input.source_url,
-		params: input.params,
+		input: input.input,
 		idempotency_key: options?.idempotencyKey ?? globalThis.crypto.randomUUID(),
 		webhook: options?.webhook,
 		webhook_events_filter: options?.webhookEventsFilter,
@@ -149,7 +167,10 @@ export class Tasks {
 		this.#ctx = ctx;
 	}
 
-	create(input: CreateTaskInput, options?: TaskRequestOptions): Promise<Task> {
+	create<I extends TaskInput>(
+		input: CreateTaskInput<I>,
+		options?: TaskRequestOptions,
+	): Promise<Task> {
 		return requestJson<Task>(this.#ctx, "/v1/tasks", {
 			method: "POST",
 			body: taskBody(input, options),
@@ -166,31 +187,22 @@ export class Tasks {
 
 	readonly video = {
 		watermark: (input: VideoWatermarkInput, options?: TaskRequestOptions) =>
-			this.create({ type: "video.watermark", ...splitInput(input) }, options),
+			this.create({ type: "video.watermark", input }, options),
 		trim: (input: TrimInput, options?: TaskRequestOptions) =>
-			this.create({ type: "video.trim", ...splitInput(input) }, options),
+			this.create({ type: "video.trim", input }, options),
 		extractAudio: (input: ExtractAudioInput, options?: TaskRequestOptions) =>
-			this.create({ type: "video.audio", ...splitInput(input) }, options),
+			this.create({ type: "video.audio", input }, options),
 		thumbnail: (input: ThumbnailInput, options?: TaskRequestOptions) =>
-			this.create({ type: "video.cover", ...splitInput(input) }, options),
+			this.create({ type: "video.cover", input }, options),
 	};
 
 	readonly image = {
 		watermark: (input: ImageWatermarkInput, options?: TaskRequestOptions) =>
-			this.create({ type: "image.watermark", ...splitInput(input) }, options),
+			this.create({ type: "image.watermark", input }, options),
 	};
 
 	readonly audio = {
 		trim: (input: TrimAudioInput, options?: TaskRequestOptions) =>
-			this.create({ type: "audio.trim", ...splitInput(input) }, options),
+			this.create({ type: "audio.trim", input }, options),
 	};
-}
-
-/** Splits a sync-style `{ source_url, ...params }` input into the task envelope shape. */
-function splitInput(input: { source_url: string }): {
-	source_url: string;
-	params: Record<string, unknown>;
-} {
-	const { source_url, ...params } = input;
-	return { source_url, params };
 }
